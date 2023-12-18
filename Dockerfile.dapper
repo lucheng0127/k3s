@@ -8,7 +8,9 @@ ARG no_proxy
 ENV http_proxy=${http_proxy} \
     https_proxy=${https_proxy} \
     no_proxy=${no_proxy}
+ENV GOPROXY=https://goproxy.io,direct
 
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 # Install necessary packages
 RUN apk -U --no-cache add \
     bash git gcc musl-dev docker vim less file curl wget ca-certificates jq linux-headers \
@@ -19,7 +21,7 @@ RUN apk -U --no-cache add \
     && [ "$(go env GOARCH)" = "amd64" ] && apk -U --no-cache add mingw-w64-gcc || true
 
 # Install AWS CLI
-RUN python3 -m pip install awscli
+RUN python3 -m pip install -i https://mirrors.ustc.edu.cn/pypi/web/simple awscli
 
 # Install Trivy
 ENV TRIVY_VERSION="0.46.1"
@@ -36,14 +38,15 @@ RUN if [ -n "${TRIVY_ARCH}" ]; then \
     fi
 
 # Install goimports
-RUN GOPROXY=direct go install golang.org/x/tools/cmd/goimports@gopls/v0.11.0
+RUN go install golang.org/x/tools/gopls@v0.11.0
 
 # Cleanup
 RUN rm -rf /go/src /go/pkg
 
+COPY statics/ statics/
 # Install golangci-lint for amd64
 RUN if [ "$(go env GOARCH)" = "amd64" ]; then \
-    curl -sL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.51.2;  \
+    sh -s v1.51.2 statics/golangci_lint_install.sh;  \
     fi
     
 # Set SELINUX environment variable
