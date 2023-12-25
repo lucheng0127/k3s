@@ -125,6 +125,11 @@ containerd_binaries=(
     "bin/runhcs"
 )
 
+eip_binaries=(
+    "bin/eipctl"
+    "bin/eip_agent"
+)
+
 for i in "${k3s_binaries[@]}"; do
     if [ -f "$i${BINARY_POSTFIX}" ]; then
         echo "Removing $i${BINARY_POSTFIX}"
@@ -133,6 +138,13 @@ for i in "${k3s_binaries[@]}"; do
 done
 
 for i in "${containerd_binaries[@]}"; do
+    if [ -f "$i${BINARY_POSTFIX}" ]; then
+        echo "Removing $i${BINARY_POSTFIX}"
+        rm -f "$i${BINARY_POSTFIX}"
+    fi
+done
+
+for i in "${eip_binaries[@]}"; do
     if [ -f "$i${BINARY_POSTFIX}" ]; then
         echo "Removing $i${BINARY_POSTFIX}"
         rm -f "$i${BINARY_POSTFIX}"
@@ -166,6 +178,12 @@ for i in "${k3s_binaries[@]}"; do
 done
 
 export GOPATH=$(pwd)/build
+
+echo Building eipctl
+CGO_ENABLED=1 "${GO}" build -tags "$TAGS" -gcflags="all=${GCFLAGS}" -ldflags "$VERSIONFLAGS $LDFLAGS $STATIC" -o bin/eipctl ./cmd/eipctl
+
+echo Building eip agent
+CGO_ENABLED=1 "${GO}" build -tags "$TAGS" -gcflags="all=${GCFLAGS}" -ldflags "$VERSIONFLAGS $LDFLAGS $STATIC" -o bin/eip_agent ./cmd/eip_agent
 
 case ${OS} in
   linux)
