@@ -189,12 +189,12 @@ setup_env() {
 
     # --- use systemd name if defined or create default ---
     if [ -n "${INSTALL_K3S_NAME}" ]; then
-        SYSTEM_NAME=k3s-${INSTALL_K3S_NAME}
+        SYSTEM_NAME=projname-${INSTALL_K3S_NAME}
     else
         if [ "${CMD_K3S}" = server ]; then
-            SYSTEM_NAME=k3s
+            SYSTEM_NAME=projname
         else
-            SYSTEM_NAME=k3s-${CMD_K3S}
+            SYSTEM_NAME=projname-${CMD_K3S}
         fi
     fi
 
@@ -243,7 +243,7 @@ setup_env() {
     # --- set related files from system name ---
     SERVICE_K3S=${SYSTEM_NAME}.service
     UNINSTALL_K3S_SH=${UNINSTALL_K3S_SH:-${BIN_DIR}/${SYSTEM_NAME}-uninstall.sh}
-    KILLALL_K3S_SH=${KILLALL_K3S_SH:-${BIN_DIR}/k3s-killall.sh}
+    KILLALL_K3S_SH=${KILLALL_K3S_SH:-${BIN_DIR}/projname-killall.sh}
 
     # --- use service or environment location depending on systemd/openrc ---
     if [ "${HAS_SYSTEMD}" = true ]; then
@@ -283,8 +283,8 @@ can_skip_download_selinux() {
 
 # --- verify an executable k3s binary is installed ---
 verify_k3s_is_executable() {
-    if [ ! -x ${BIN_DIR}/k3s ]; then
-        fatal "Executable k3s binary not found at ${BIN_DIR}/k3s"
+    if [ ! -x ${BIN_DIR}/projname ]; then
+        fatal "Executable projname binary not found at ${BIN_DIR}/projname"
     fi
 }
 
@@ -682,13 +682,13 @@ create_symlinks() {
         if [ ! -e ${BIN_DIR}/${cmd} ] || [ "${INSTALL_K3S_SYMLINK}" = force ]; then
             which_cmd=$(command -v ${cmd} 2>/dev/null || true)
             if [ -z "${which_cmd}" ] || [ "${INSTALL_K3S_SYMLINK}" = force ]; then
-                info "Creating ${BIN_DIR}/${cmd} symlink to k3s"
-                $SUDO ln -sf k3s ${BIN_DIR}/${cmd}
+                info "Creating ${BIN_DIR}/${cmd} symlink to projname"
+                $SUDO ln -sf projname ${BIN_DIR}/${cmd}
             else
-                info "Skipping ${BIN_DIR}/${cmd} symlink to k3s, command exists in PATH at ${which_cmd}"
+                info "Skipping ${BIN_DIR}/${cmd} symlink to projname, command exists in PATH at ${which_cmd}"
             fi
         else
-            info "Skipping ${BIN_DIR}/${cmd} symlink to k3s, already exists"
+            info "Skipping ${BIN_DIR}/${cmd} symlink to projname, already exists"
         fi
     done
 }
@@ -701,17 +701,17 @@ create_killall() {
 #!/bin/sh
 [ $(id -u) -eq 0 ] || exec sudo $0 $@
 
-for bin in /var/lib/rancher/k3s/data/**/bin/; do
+for bin in /var/lib/coname/projname/data/**/bin/; do
     [ -d $bin ] && export PATH=$PATH:$bin:$bin/aux
 done
 
 set -x
 
-for service in /etc/systemd/system/k3s*.service; do
+for service in /etc/systemd/system/projname*.service; do
     [ -s $service ] && systemctl stop $(basename $service)
 done
 
-for service in /etc/init.d/k3s*; do
+for service in /etc/init.d/projname*; do
     [ -x $service ] && $service stop
 done
 
@@ -821,7 +821,7 @@ remove_uninstall() {
 }
 trap remove_uninstall EXIT
 
-if (ls ${SYSTEMD_DIR}/k3s*.service || ls /etc/init.d/k3s*) >/dev/null 2>&1; then
+if (ls ${SYSTEMD_DIR}/projname*.service || ls /etc/init.d/k3s*) >/dev/null 2>&1; then
     set +x; echo 'Additional k3s services installed, skipping uninstall of k3s'; set -x
     exit
 fi
@@ -835,7 +835,7 @@ done
 rm -rf /etc/rancher/k3s
 rm -rf /run/k3s
 rm -rf /run/flannel
-rm -rf /var/lib/rancher/k3s
+rm -rf /var/lib/coname/projname
 rm -rf /var/lib/kubelet
 rm -f ${BIN_DIR}/k3s
 rm -f ${KILLALL_K3S_SH}
@@ -880,8 +880,7 @@ create_systemd_service_file() {
     info "systemd: Creating service file ${FILE_K3S_SERVICE}"
     $SUDO tee ${FILE_K3S_SERVICE} >/dev/null << EOF
 [Unit]
-Description=Lightweight Kubernetes
-Documentation=https://k3s.io
+Description=Hydra
 Wants=network-online.target
 After=network-online.target
 
@@ -907,7 +906,7 @@ RestartSec=5s
 ExecStartPre=/bin/sh -xc '! /usr/bin/systemctl is-enabled --quiet nm-cloud-setup.service'
 ExecStartPre=-/sbin/modprobe br_netfilter
 ExecStartPre=-/sbin/modprobe overlay
-ExecStart=${BIN_DIR}/k3s \\
+ExecStart=${BIN_DIR}/projname \\
     ${CMD_K3S_EXEC}
 
 EOF
@@ -932,7 +931,7 @@ start_pre() {
 
 supervisor=supervise-daemon
 name=${SYSTEM_NAME}
-command="${BIN_DIR}/k3s"
+command="${BIN_DIR}/projname"
 command_args="$(escape_dq "${CMD_K3S_EXEC}")
     >>${LOG_FILE} 2>&1"
 
@@ -973,7 +972,7 @@ restore_systemd_service_file_context() {
 
 # --- get hashes of the current k3s bin and service files
 get_installed_hashes() {
-    $SUDO sha256sum ${BIN_DIR}/k3s ${FILE_K3S_SERVICE} ${FILE_K3S_ENV} 2>&1 || true
+    $SUDO sha256sum ${BIN_DIR}/projname ${FILE_K3S_SERVICE} ${FILE_K3S_ENV} 2>&1 || true
 }
 
 # --- enable and start systemd service ---

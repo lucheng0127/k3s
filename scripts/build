@@ -104,13 +104,13 @@ if [ ${ARCH} = s390x ]; then
 fi
 
 k3s_binaries=(
-    "bin/k3s-agent"
-    "bin/k3s-server"
-    "bin/k3s-token"
-    "bin/k3s-etcd-snapshot"
-    "bin/k3s-secrets-encrypt"
-    "bin/k3s-certificate"
-    "bin/k3s-completion"
+    "bin/projname-agent"
+    "bin/projname-server"
+    "bin/projname-token"
+    "bin/projname-etcd-snapshot"
+    "bin/projname-secrets-encrypt"
+    "bin/projname-certificate"
+    "bin/projname-completion"
     "bin/kubectl"
     "bin/containerd"
     "bin/crictl"
@@ -171,10 +171,10 @@ if [ ! -x ${INSTALLBIN}/cni${BINARY_POSTFIX} ]; then
 fi
 
 echo Building k3s
-CGO_ENABLED=1 "${GO}" build $BLDFLAGS -tags "$TAGS" -buildvcs=false -gcflags="all=${GCFLAGS}" -ldflags "$VERSIONFLAGS $LDFLAGS $STATIC" -o bin/k3s${BINARY_POSTFIX} ./cmd/server
+CGO_ENABLED=1 "${GO}" build $BLDFLAGS -tags "$TAGS" -buildvcs=false -gcflags="all=${GCFLAGS}" -ldflags "$VERSIONFLAGS $LDFLAGS $STATIC" -o bin/projname${BINARY_POSTFIX} ./cmd/server
 
 for i in "${k3s_binaries[@]}"; do
-    ln -s "k3s${BINARY_POSTFIX}" "$i${BINARY_POSTFIX}"
+    ln -s "projname${BINARY_POSTFIX}" "$i${BINARY_POSTFIX}"
 done
 
 export GOPATH=$(pwd)/build

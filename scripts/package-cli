@@ -7,9 +7,9 @@ cd $(dirname $0)/..
 
 GO=${GO-go}
 
-for i in containerd crictl kubectl k3s-agent k3s-server k3s-token k3s-etcd-snapshot k3s-secrets-encrypt k3s-certificate k3s-completion; do
+for i in containerd crictl kubectl projname-agent projname-server projname-token projname-etcd-snapshot projname-secrets-encrypt projname-certificate projname-completion; do
     rm -f bin/$i${BINARY_POSTFIX}
-    ln -s k3s${BINARY_POSTFIX} bin/$i${BINARY_POSTFIX}
+    ln -s projname${BINARY_POSTFIX} bin/$i${BINARY_POSTFIX}
 done
 
 cni_binaries=(
@@ -69,7 +69,7 @@ elif [ ${ARCH} = s390x ]; then
     BIN_SUFFIX="-s390x"
 fi
 
-CMD_NAME=dist/artifacts/k3s${BIN_SUFFIX}${BINARY_POSTFIX}
+CMD_NAME=dist/artifacts/projname${BIN_SUFFIX}${BINARY_POSTFIX}
 
 GOOS=linux CC=gcc CXX=g++ "${GO}" generate
 LDFLAGS="

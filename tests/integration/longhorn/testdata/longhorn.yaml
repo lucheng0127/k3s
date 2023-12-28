@@ -2814,7 +2814,7 @@ spec:
       jsonPath: .status.readyToUse
       name: ReadyToUse
       type: boolean
-    - description: Represents the minimum size of volume required to rehydrate from this snapshot
+    - description: Represents the minimum size of volume required to reprojnamete from this snapshot
       jsonPath: .status.restoreSize
       name: RestoreSize
       type: string

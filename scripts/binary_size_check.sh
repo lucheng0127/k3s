@@ -22,7 +22,7 @@ elif [ ${ARCH} = s390x ]; then
     BIN_SUFFIX="-s390x"
 fi
 
-CMD_NAME="dist/artifacts/k3s${BIN_SUFFIX}"
+CMD_NAME="dist/artifacts/projname${BIN_SUFFIX}"
 SIZE=$(stat -c '%s' ${CMD_NAME})
 
 if [ -n "${DEBUG}" ]; then

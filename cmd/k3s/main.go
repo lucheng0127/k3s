@@ -36,17 +36,17 @@ func main() {
 		return
 	}
 
-	tokenCommand := internalCLIAction(version.Program+"-"+cmds.TokenCommand, dataDir, os.Args)
-	etcdsnapshotCommand := internalCLIAction(version.Program+"-"+cmds.EtcdSnapshotCommand, dataDir, os.Args)
-	secretsencryptCommand := internalCLIAction(version.Program+"-"+cmds.SecretsEncryptCommand, dataDir, os.Args)
-	certCommand := internalCLIAction(version.Program+"-"+cmds.CertCommand, dataDir, os.Args)
+	tokenCommand := internalCLIAction("projname"+"-"+cmds.TokenCommand, dataDir, os.Args)
+	etcdsnapshotCommand := internalCLIAction("projname"+"-"+cmds.EtcdSnapshotCommand, dataDir, os.Args)
+	secretsencryptCommand := internalCLIAction("projname"+"-"+cmds.SecretsEncryptCommand, dataDir, os.Args)
+	certCommand := internalCLIAction("projname"+"-"+cmds.CertCommand, dataDir, os.Args)
 
 	// Handle subcommand invocation (k3s server, k3s crictl, etc)
 	app := cmds.NewApp()
 	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
-		cmds.NewServerCommand(internalCLIAction(version.Program+"-server"+programPostfix, dataDir, os.Args)),
-		cmds.NewAgentCommand(internalCLIAction(version.Program+"-agent"+programPostfix, dataDir, os.Args)),
+		cmds.NewServerCommand(internalCLIAction("projname"+"-server"+programPostfix, dataDir, os.Args)),
+		cmds.NewAgentCommand(internalCLIAction("projname"+"-agent"+programPostfix, dataDir, os.Args)),
 		cmds.NewKubectlCommand(externalCLIAction("kubectl", dataDir)),
 		cmds.NewCRICTL(externalCLIAction("crictl", dataDir)),
 		cmds.NewCtrCommand(externalCLIAction("ctr", dataDir)),
@@ -77,7 +77,7 @@ func main() {
 			certCommand,
 			certCommand,
 		),
-		cmds.NewCompletionCommand(internalCLIAction(version.Program+"-completion", dataDir, os.Args)),
+		cmds.NewCompletionCommand(internalCLIAction("projname"+"-completion", dataDir, os.Args)),
 	}
 
 	if err := app.Run(os.Args); err != nil && !errors.Is(err, context.Canceled) {
@@ -219,7 +219,7 @@ func getAssetAndDir(dataDir string) (string, string) {
 func extract(dataDir string) (string, error) {
 	// check if content already exists in requested data-dir
 	asset, dir := getAssetAndDir(dataDir)
-	if _, err := os.Stat(filepath.Join(dir, "bin", "k3s"+programPostfix)); err == nil {
+	if _, err := os.Stat(filepath.Join(dir, "bin", "projname"+programPostfix)); err == nil {
 		return dir, nil
 	}
 
@@ -228,7 +228,7 @@ func extract(dataDir string) (string, error) {
 	// dir if the assets already exist in the default path.
 	if dataDir != datadir.DefaultDataDir {
 		_, defaultDir := getAssetAndDir(datadir.DefaultDataDir)
-		if _, err := os.Stat(filepath.Join(defaultDir, "bin", "k3s"+programPostfix)); err == nil {
+		if _, err := os.Stat(filepath.Join(defaultDir, "bin", "projname"+programPostfix)); err == nil {
 			return defaultDir, nil
 		}
 	}
