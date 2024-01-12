@@ -33,4 +33,3 @@ config/local.tfvars
 *.terraform
 *.tfstate
 .terraform.lock.hcl
-.vscode
